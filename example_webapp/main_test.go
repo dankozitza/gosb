@@ -1,11 +1,11 @@
 package main
 
 import (
-	"stretchr/codecs/services"
-	"stretchr/goweb"
-	"stretchr/goweb/handlers"
-	"stretchr/testify/assert"
-	testifyhttp "stretchr/testify/http"
+	"github.com/stretchr/codecs/services"
+	"github.com/stretchr/goweb"
+	"github.com/stretchr/goweb/handlers"
+	"github.com/stretchr/testify/assert"
+	testifyhttp "github.com/stretchr/testify/http"
 	"net/http"
 	"testing"
 )

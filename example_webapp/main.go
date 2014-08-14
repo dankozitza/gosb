@@ -3,8 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
-	"stretchr/goweb"
-	"stretchr/goweb/context"
+	"github.com/stretchr/goweb"
+	"github.com/stretchr/goweb/context"
 	"log"
 	"net"
 	"net/http"
