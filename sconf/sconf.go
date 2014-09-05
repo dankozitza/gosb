@@ -4,22 +4,18 @@ package sconf
 //	"fmt"
 //	"strings"
 
-//type sconf map[string]string
-type sconf struct {
-	m_sconf *map[string]string
-}
+type sconf map[string]string
 
-var settings map[string]string
-//var config_file_path string
-//var update_config bool
+var settings sconf
+var config_file_path string
+var update_config bool
 
-func (s *sconf) New() *sconf {
-	s.m_sconf := &settings
-	if (update_config == true) {
-		s.m_sconf.Update()
-	}
-	return s
-}
+//func main() {
+//	m_sconf := &settings
+//	if (update_config == true) {
+//		m_sconf.Update()
+//	}
+//}
 
 func (s *sconf) Update() bool {
 	// update settings map from file at config_file_path

@@ -1,12 +1,15 @@
 package main
 
 import (
-	"./src"
+	"./sconf"
 	"fmt"
 )
 
-func main {
-	var conf sconf
+func main() {
+	conf := sconf.New()
+
+	conf["hat"] = "butt"
 
 	fmt.Println(conf)
+	return
 }
