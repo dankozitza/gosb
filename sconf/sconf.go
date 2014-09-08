@@ -5,6 +5,19 @@ import (
 //	"github.com/vaughan0/go-ini"
 )
 
+type ErrNoConfigPath int
+func (e ErrNoConfigPath) Error() string {
+	return "sconf: no configuration file path was set"
+}
+type ErrNilSettingsMap int
+func (e ErrNilSettingsMap) Error() string {
+	return "sconf: settings map is nil!"
+}
+type ErrUpdateSettings string
+func (e ErrUpdateSettings) Error() string {
+	return "sconf: could not update settings map from ini file: [" + e + "]"
+}
+
 type sconf map[string]string
 
 var settings sconf = make(sconf)
@@ -14,11 +27,11 @@ var update_config bool = true
 func Inst(cfp string) (sconf, error) {
 
 	if (settings == nil) {
-		return nil, error("sconf: settings map is nil!")
+		return nil, ErrNilSettingsMap()
 	}
 
 	if (config_file_path == nil && cfp == nil) {
-		return nil, error("sconf: no config file path")
+		return nil, ErrNoConfigPath()
 	}
 
 	if (cfp != nil) {
@@ -30,7 +43,7 @@ func Inst(cfp string) (sconf, error) {
 	if (update_config) {
 		ret := settings.Update()
 		if (ret == false) {
-			return nil, error("sconf: there was an error updating config")
+			return nil, ErrUpdateSettings("pretend/config_file_path.ini")
 		}
 		update_config = false
 	}
