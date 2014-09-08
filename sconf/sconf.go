@@ -1,8 +1,9 @@
 package sconf
 
-//import ()
-//	"fmt"
+import (
+	"fmt"
 //	"strings"
+)
 
 type sconf map[string]string
 
@@ -15,6 +16,7 @@ func Inst() sconf {
 	if (settings == nil) {
 		settings := make(sconf)
 		settings["initialized"] = "true"
+		fmt.Println("settings map has been initialized")
 	}
 
 	//m_sconf := &settings
