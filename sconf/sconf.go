@@ -6,7 +6,7 @@ package sconf
 
 type sconf map[string]string
 
-var settings sconf
+var settings make(sconf)
 var config_file_path string
 var update_config bool
 
