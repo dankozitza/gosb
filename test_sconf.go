@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	conf, err := sconf.Inst("first_init.ini")
+	conf, err := sconf.New("new_test_sconf.ini")
 	//var conf sconf
 
 	fmt.Println(" main:   err: [", err, "]")
@@ -15,8 +15,7 @@ func main() {
 
 	fmt.Println(" main:  conf: ", conf)
 
-	conf2, err := sconf.Inst("seconf_init.ini")
-	fmt.Println(" main:   err: [", err, "]")
+	conf2 := sconf.Inst("seconf_init.ini")
 
 	fmt.Println(" main: conf2: ", conf2)
 

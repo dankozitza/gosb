@@ -5,10 +5,6 @@ import (
 //	"github.com/vaughan0/go-ini"
 )
 
-type ErrNoConfigPath int
-func (e ErrNoConfigPath) Error() string {
-	return "sconf: no configuration file path was set"
-}
 type ErrNilSettingsMap int
 func (e ErrNilSettingsMap) Error() string {
 	return "sconf: settings map is nil!"
@@ -24,24 +20,22 @@ var settings sconf = make(sconf)
 var config_file_path string
 var update_config bool = true
 
-func Inst() (sconf, error) {
-	return Inst("")
-}
-
-func Inst(cfp string) (sconf, error) {
+func Inst() sconf {
 
 	if (settings == nil) {
 		return nil, ErrNilSettingsMap(1)
 	}
-	settings["initialized"] = "true"
 
-	if (config_file_path == "" && cfp == "") {
-		return nil, ErrNoConfigPath(1)
+	return settings
+}
+
+func New(cfp string) (sconf, error) {
+
+	if (settings == nil) {
+		return nil, ErrNilSettingsMap(1)
 	}
 
-	if (cfp != "") {
-		config_file_path = cfp
-	}
+	config_file_path = cfp
 
 	fmt.Println("sconf: settings map is not nil: ", settings)
 
@@ -54,16 +48,6 @@ func Inst(cfp string) (sconf, error) {
 	}
 
 	return settings, nil
-
-	//settings := make(sconf)
-	//settings["sconf_test"] = "from_first_Inst()"
-	//fmt.Print("sconf: settings map has been initialized (")
-	//fmt.Println(settings, ")")
-
-	//m_sconf := &settings
-	//if (update_config == true) {
-	//	m_sconf.Update()
-	//}
 }
 
 func (s *sconf) Update() bool {
