@@ -15,7 +15,7 @@ func (e ErrNilSettingsMap) Error() string {
 }
 type ErrUpdateSettings string
 func (e ErrUpdateSettings) Error() string {
-	return "sconf: could not update settings map from ini file: [" + e + "]"
+	return "sconf: could not update settings map from ini file: " + e
 }
 
 type sconf map[string]string
@@ -27,11 +27,11 @@ var update_config bool = true
 func Inst(cfp string) (sconf, error) {
 
 	if (settings == nil) {
-		return nil, ErrNilSettingsMap()
+		return nil, ErrNilSettingsMap(1)
 	}
 
 	if (config_file_path == nil && cfp == nil) {
-		return nil, ErrNoConfigPath()
+		return nil, ErrNoConfigPath(1)
 	}
 
 	if (cfp != nil) {
