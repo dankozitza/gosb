@@ -11,7 +11,7 @@ var settings sconf
 var config_file_path string
 var update_config bool
 
-func Inst() *sconf {
+func (s sconf) Inst() sconf {
 
 	if (settings == nil) {
 		settings := make(sconf)
@@ -24,7 +24,7 @@ func Inst() *sconf {
 	//	m_sconf.Update()
 	//}
 
-	return &settings
+	return settings
 }
 
 func (s *sconf) Update() bool {
