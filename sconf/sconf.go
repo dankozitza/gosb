@@ -6,9 +6,15 @@ package sconf
 
 type sconf map[string]string
 
-var settings make(sconf)
+var settings sconf
 var config_file_path string
 var update_config bool
+
+func init() {
+	if (settings == nil) {
+		settings := make(sconf)
+	}
+}
 
 func Inst() sconf {
 	//m_sconf := &settings
