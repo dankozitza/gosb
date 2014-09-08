@@ -11,7 +11,7 @@ var settings sconf
 var config_file_path string
 var update_config bool
 
-func (s sconf) Inst() sconf {
+func Inst() sconf {
 
 	if (settings == nil) {
 		settings := make(sconf)
