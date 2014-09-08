@@ -16,7 +16,6 @@ func New() *sconf {
 		m_sconf.Update()
 	}
 
-		asdlfjas;dlkfja;ldkfj:
 	return m_sconf
 }
 
