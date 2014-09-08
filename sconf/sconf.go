@@ -64,7 +64,7 @@ func Inst(cfp string) (sconf, error) {
 
 func (s *sconf) Update() bool {
 	// update settings map from file at config_file_path
-	return false
+	return true
 }
 
 func (s *sconf) Set_config_file_path(path string) {

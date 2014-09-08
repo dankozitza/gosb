@@ -9,9 +9,11 @@ func main() {
 	conf, err := sconf.Inst("first_init.ini")
 	//var conf sconf
 
+	fmt.Println(" main: err: [", err, "]")
+
 	conf["hat"] = "butt"
 
-	fmt.Println(" main:  conf: ", conf, "\nerror: [", err, "]")
+	fmt.Println(" main:  conf: ", conf)
 
 	conf2, err := sconf.Inst("seconf_init.ini")
 
