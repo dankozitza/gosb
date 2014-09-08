@@ -6,11 +6,10 @@ import (
 )
 
 func main() {
-	var conf *sconf
-	conf := &sconf.Inst()
-	//var conf make(sconf)
+	conf := sconf.Inst()
+	//var conf sconf
 
-	conf["hat"] = "butt"
+	//conf["hat"] = "butt"
 
 	fmt.Println(conf)
 	return
