@@ -2,33 +2,49 @@ package sconf
 
 import (
 	"fmt"
-//	"strings"
+	"github.com/vaughan0/go-ini"
 )
 
 type sconf map[string]string
 
 var settings sconf = make(sconf)
 var config_file_path string
-var update_config bool
+var update_config bool = true
 
-func Inst() sconf {
+func Inst(cfp string) (sconf, error) {
 
-	if (settings != nil) {
-		fmt.Println("sconf: settings map is not nil: ", settings)
-		return settings
+	if (settings == nil) {
+		return nil, error("sconf: settings map is nil!")
 	}
 
-	settings := make(sconf)
-	settings["sconf_test"] = "from_first_Inst()"
-	fmt.Print("sconf: settings map has been initialized (")
-	fmt.Println(settings, ")")
+	if (config_file_path == nil && cfp == nil) {
+		return nil, error("sconf: no config file path")
+	}
+
+	if (cfp != nil) {
+		config_file_path = cfp
+	}
+
+	fmt.Println("sconf: settings map is not nil: ", settings)
+
+	if (update_config) {
+		ret := settings.Update()
+		if (ret == false) {
+			return nil, error("sconf: there was an error updating config")
+		update_config = false
+	}
+
+	return settings, nil
+
+	//settings := make(sconf)
+	//settings["sconf_test"] = "from_first_Inst()"
+	//fmt.Print("sconf: settings map has been initialized (")
+	//fmt.Println(settings, ")")
 
 	//m_sconf := &settings
 	//if (update_config == true) {
 	//	m_sconf.Update()
 	//}
-
-	return settings
 }
 
 func (s *sconf) Update() bool {
