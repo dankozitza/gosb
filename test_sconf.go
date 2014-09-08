@@ -6,8 +6,8 @@ import (
 )
 
 func main() {
-	conf := sconf.New()
-	//var conf sconf
+	//conf := sconf.New()
+	var conf sconf
 
 	conf["hat"] = "butt"
 
