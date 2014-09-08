@@ -16,13 +16,13 @@ func Inst() sconf {
 	if (settings == nil) {
 		settings := make(sconf)
 		settings["sconf_test"] = "from_first_Inst()"
-		fmt.Prints("sconf: settings map has been initialized (")
+		fmt.Print("sconf: settings map has been initialized (")
 		fmt.Println(settings, ")")
 		return settings
 
 	} else {
 
-		fmt.Prints("sconf: settings map is not nil (")
+		fmt.Print("sconf: settings map is not nil (")
 		fmt.Println(settings, ")")
 
 	}
