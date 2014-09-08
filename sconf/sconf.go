@@ -10,13 +10,13 @@ var settings sconf
 var config_file_path string
 var update_config bool
 
-func Inst() *sconf {
-	m_sconf := &settings
-	if (update_config == true) {
-		m_sconf.Update()
-	}
+func Inst() sconf {
+	//m_sconf := &settings
+	//if (update_config == true) {
+	//	m_sconf.Update()
+	//}
 
-	return m_sconf
+	return settings
 }
 
 func (s *sconf) Update() bool {
