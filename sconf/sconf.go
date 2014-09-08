@@ -10,14 +10,13 @@ var settings sconf
 var config_file_path string
 var update_config bool
 
-func init() {
+func Inst() sconf {
+
 	if (settings == nil) {
 		settings := make(sconf)
 		settings["initialized"] = "true"
 	}
-}
 
-func Inst() sconf {
 	//m_sconf := &settings
 	//if (update_config == true) {
 	//	m_sconf.Update()
