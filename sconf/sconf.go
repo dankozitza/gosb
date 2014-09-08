@@ -10,12 +10,13 @@ var settings sconf
 var config_file_path string
 var update_config bool
 
-
 func New() *sconf {
 	m_sconf := &settings
 	if (update_config == true) {
 		m_sconf.Update()
 	}
+
+		asdlfjas;dlkfja;ldkfj:
 	return m_sconf
 }
 
