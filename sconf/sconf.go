@@ -31,6 +31,7 @@ func Inst(cfp string) (sconf, error) {
 		ret := settings.Update()
 		if (ret == false) {
 			return nil, error("sconf: there was an error updating config")
+		}
 		update_config = false
 	}
 
