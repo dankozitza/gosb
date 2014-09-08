@@ -14,6 +14,7 @@ func init() {
 	if (settings == nil) {
 		settings := make(sconf)
 	}
+	settings["initialized"] = "true"
 }
 
 func Inst() sconf {
