@@ -19,8 +19,8 @@ func Inst() sconf {
 		fmt.Prints("sconf: settings map has been initialized (")
 		fmt.Println(settings, ")")
 		return settings
-	}
-	else {
+
+	} else {
 
 		fmt.Prints("sconf: settings map is not nil (")
 		fmt.Println(settings, ")")
