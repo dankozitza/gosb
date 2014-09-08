@@ -30,11 +30,11 @@ func Inst(cfp string) (sconf, error) {
 		return nil, ErrNilSettingsMap(1)
 	}
 
-	if (config_file_path == nil && cfp == nil) {
+	if (config_file_path == "" && cfp == "") {
 		return nil, ErrNoConfigPath(1)
 	}
 
-	if (cfp != nil) {
+	if (cfp != "") {
 		config_file_path = cfp
 	}
 
