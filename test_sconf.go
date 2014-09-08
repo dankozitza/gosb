@@ -9,8 +9,9 @@ func main() {
 	conf := sconf.Inst()
 	//var conf sconf
 
-	//conf["hat"] = "butt"
+	conf["hat"] = "butt"
 
-	fmt.Println(conf)
+	fmt.Println("main: conf (", conf, ")")
+
 	return
 }
