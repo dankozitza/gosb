@@ -1,12 +1,13 @@
 package main
 
 import (
-	"github.com/dankozitza/gosb/sconf"
 	"fmt"
+	"github.com/dankozitza/gosb/sconf"
 )
 
 func main() {
 	conf := sconf.New()
+	//var conf sconf
 
 	conf["hat"] = "butt"
 
