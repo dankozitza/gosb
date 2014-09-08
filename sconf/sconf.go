@@ -2,7 +2,7 @@ package sconf
 
 import (
 	"fmt"
-	"github.com/vaughan0/go-ini"
+//	"github.com/vaughan0/go-ini"
 )
 
 type sconf map[string]string
