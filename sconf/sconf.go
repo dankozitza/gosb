@@ -7,25 +7,21 @@ import (
 
 type sconf map[string]string
 
-var settings sconf
+var settings sconf = make(sconf)
 var config_file_path string
 var update_config bool
 
 func Inst() sconf {
 
-	if (settings == nil) {
-		settings := make(sconf)
-		settings["sconf_test"] = "from_first_Inst()"
-		fmt.Print("sconf: settings map has been initialized (")
-		fmt.Println(settings, ")")
+	if (settings != nil) {
+		fmt.Println("sconf: settings map is not nil: ", settings)
 		return settings
-
-	} else {
-
-		fmt.Print("sconf: settings map is not nil (")
-		fmt.Println(settings, ")")
-
 	}
+
+	settings := make(sconf)
+	settings["sconf_test"] = "from_first_Inst()"
+	fmt.Print("sconf: settings map has been initialized (")
+	fmt.Println(settings, ")")
 
 	//m_sconf := &settings
 	//if (update_config == true) {

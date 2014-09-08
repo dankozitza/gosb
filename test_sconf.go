@@ -11,7 +11,11 @@ func main() {
 
 	conf["hat"] = "butt"
 
-	fmt.Print("main: conf (", conf, ")")
+	fmt.Println(" main:  conf: ", conf)
+
+	conf2 := sconf.Inst()
+
+	fmt.Println(" main: conf2: ", conf2)
 
 	return
 }
