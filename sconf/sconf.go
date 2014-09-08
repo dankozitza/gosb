@@ -10,12 +10,13 @@ var settings sconf
 var config_file_path string
 var update_config bool
 
-//func main() {
-//	m_sconf := &settings
-//	if (update_config == true) {
-//		m_sconf.Update()
-//	}
-//}
+func (s *sconf) New() *sconf {
+	m_sconf := &settings
+	if (update_config == true) {
+		m_sconf.Update()
+	}
+	return m_sconf
+}
 
 func (s *sconf) Update() bool {
 	// update settings map from file at config_file_path

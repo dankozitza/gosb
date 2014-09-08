@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./sconf"
+	"github.com/dankozitza/gosb/sconf"
 	"fmt"
 )
 
