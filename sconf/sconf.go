@@ -29,6 +29,7 @@ func Inst(cfp string) (sconf, error) {
 	if (settings == nil) {
 		return nil, ErrNilSettingsMap(1)
 	}
+	settings["initialized"] = "true"
 
 	if (config_file_path == "" && cfp == "") {
 		return nil, ErrNoConfigPath(1)

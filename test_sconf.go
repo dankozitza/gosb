@@ -6,16 +6,16 @@ import (
 )
 
 func main() {
-	conf := sconf.Inst()
+	conf, err := sconf.Inst("first_init.ini")
 	//var conf sconf
 
 	conf["hat"] = "butt"
 
-	fmt.Println(" main:  conf: ", conf)
+	fmt.Println(" main:  conf: ", conf, "\nerror: [", err, "]")
 
-	conf2 := sconf.Inst()
+	conf2, err := sconf.Inst("seconf_init.ini")
 
-	fmt.Println(" main: conf2: ", conf2)
+	fmt.Println(" main: conf2: ", conf2, "\nerror: [", err, "]")
 
 	return
 }
