@@ -13,8 +13,8 @@ var update_config bool
 func init() {
 	if (settings == nil) {
 		settings := make(sconf)
+		settings["initialized"] = "true"
 	}
-	settings["initialized"] = "true"
 }
 
 func Inst() sconf {
