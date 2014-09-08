@@ -15,7 +15,7 @@ func (e ErrNilSettingsMap) Error() string {
 }
 type ErrUpdateSettings string
 func (e ErrUpdateSettings) Error() string {
-	return "sconf: could not update settings map from ini file: " + e
+	return "sconf: could not update settings map from ini file: " + string(e)
 }
 
 type sconf map[string]string
