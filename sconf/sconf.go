@@ -25,7 +25,7 @@ var config_file_path string
 var update_config bool = true
 
 func Inst() (sconf, error) {
-	return settings.Inst("")
+	return Inst("")
 }
 
 func Inst(cfp string) (sconf, error) {
