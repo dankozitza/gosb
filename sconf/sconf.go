@@ -17,6 +17,7 @@ func Inst() sconf {
 		settings := make(sconf)
 		settings["initialized"] = "true"
 		fmt.Println("settings map has been initialized")
+		fmt.Println(settings)
 	}
 
 	//m_sconf := &settings
