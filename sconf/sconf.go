@@ -24,7 +24,7 @@ func Inst() sconf {
 	//	m_sconf.Update()
 	//}
 
-	return settings
+	return &settings
 }
 
 func (s *sconf) Update() bool {
