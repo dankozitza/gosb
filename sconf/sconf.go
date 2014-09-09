@@ -37,7 +37,7 @@ func New(cfp string) (sconf, error) {
 
 	config_file_path = cfp
 
-	fmt.Println("sconf: settings map is not nil: ", settings)
+	//fmt.Println("sconf: settings map is not nil: ", settings)
 
 	ret := settings.Update()
 	if (ret == false) {
