@@ -6,17 +6,22 @@ import (
 )
 
 func main() {
-	conf, err := sconf.New("new_test_sconf.ini")
+	conf1, err := sconf.New("new_test_sconf.ini")
 	//var conf sconf
 
-	fmt.Println(" main:   err: [", err, "]")
+	fmt.Println(" main:   err: ", err)
 
-	conf["hat"] = "butt"
+	conf1["first_key"] = "first_value"
 
-	fmt.Println(" main:  conf: ", conf)
+	fmt.Println(" main: conf1: ", conf1)
 
-	conf2 := sconf.Inst("seconf_init.ini")
+	conf2 := sconf.Inst()
 
+	conf2["second_key"] = "second_value"
+
+	fmt.Println("main: ran 'conf2[\"second_key\"] = \"second_value\"'")
+
+	fmt.Println(" main: conf1: ", conf1)
 	fmt.Println(" main: conf2: ", conf2)
 
 	return

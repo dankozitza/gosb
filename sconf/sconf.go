@@ -13,23 +13,23 @@ type ErrUpdateSettings string
 func (e ErrUpdateSettings) Error() string {
 	return "sconf: could not update settings map from ini file: " + string(e)
 }
+type ErrSecondCallToNew int
+func (e ErrSecondCallToNew) Error() string {
+	return "sconf: sconf.New() can not be called a second time!"
+}
 
 type sconf map[string]string
 
 var settings sconf = make(sconf)
 var config_file_path string
-var update_config bool = true
-
-func Inst() sconf {
-
-	if (settings == nil) {
-		fmt.Println(ErrNilSettingsMap(1))
-	}
-
-	return settings
-}
+var New_called bool = false
 
 func New(cfp string) (sconf, error) {
+
+	if (New_called) {
+		return nil, ErrSecondCallToNew(1)
+	}
+	New_called = true
 
 	if (settings == nil) {
 		return nil, ErrNilSettingsMap(1)
@@ -39,15 +39,21 @@ func New(cfp string) (sconf, error) {
 
 	fmt.Println("sconf: settings map is not nil: ", settings)
 
-	if (update_config) {
-		ret := settings.Update()
-		if (ret == false) {
-			return nil, ErrUpdateSettings("pretend/config_file_path.ini")
-		}
-		update_config = false
+	ret := settings.Update()
+	if (ret == false) {
+		return nil, ErrUpdateSettings("pretend/config_file_path.ini")
 	}
 
 	return settings, nil
+}
+
+func Inst() sconf {
+
+	if (settings == nil) {
+		fmt.Println(ErrNilSettingsMap(1))
+	}
+
+	return settings
 }
 
 func (s *sconf) Update() bool {
