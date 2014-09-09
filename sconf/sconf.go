@@ -23,7 +23,7 @@ var update_config bool = true
 func Inst() sconf {
 
 	if (settings == nil) {
-		return nil, ErrNilSettingsMap(1)
+		fmt.Println(ErrNilSettingsMap(1))
 	}
 
 	return settings
