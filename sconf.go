@@ -3,6 +3,7 @@ package sconf
 import (
 	"fmt"
 	"encoding/json"
+	"io"
 	"os"
 )
 
@@ -12,7 +13,7 @@ func (e ErrNilSettingsMap) Error() string {
 }
 type ErrUpdateSettings string
 func (e ErrUpdateSettings) Error() string {
-	return "sconf: could not update settings map from ini file: " + string(e)
+	return "sconf: could not update: " + string(e)
 }
 type ErrSecondCallToNew int
 func (e ErrSecondCallToNew) Error() string {
@@ -38,11 +39,9 @@ func New(cfp string) (sconf, error) {
 
 	config_file_path = cfp
 
-	//fmt.Println("sconf: settings map is not nil: ", settings)
-
-	ret := settings.Update()
-	if (ret == false) {
-		return nil, ErrUpdateSettings("pretend/config_file_path.ini")
+	err := settings.Update()
+	if (err != nil) {
+		panic(ErrUpdateSettings(err.Error()))
 	}
 
 	return settings, nil
@@ -57,25 +56,50 @@ func Inst() sconf {
 	return settings
 }
 
-func (s *sconf) Update() bool {
+func (s *sconf) Update() error {
 	// update settings map from file at config_file_path
-	return true
+	fi, err := os.Open(config_file_path)
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil
+	}
+	defer func() {
+		if err := fi.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
+	var str_json string
+	buff := make([]byte, 1024)
+	for {
+		// read a chunk
+		n, err := fi.Read(buff)
+		if err != nil && err != io.EOF {
+			return err
+		}
+		if n == 0 {
+			break
+		}
+
+		str_json += string(buff[:n])
+	}
+
+	fmt.Println("str_json:")
+	fmt.Println(str_json)
+
+	settings = nil
+	if err := json.Unmarshal([]byte(str_json), &settings); err != nil {
+		return err
+	}
+
+	fmt.Println("settings:")
+	fmt.Println(settings)
+
+	return nil
 }
 
 func (s *sconf) Set_config_file_path(path string) {
 	config_file_path = path
-}
-
-func (s *sconf) Defined(key string) bool {
-	return false
-}
-
-func (s *sconf) Get(key string) string {
-	return "value"
-}
-
-func (s *sconf) Set(key string) bool {
-	return false
 }
 
 func (s *sconf) Save() bool {
