@@ -1,4 +1,4 @@
-gosb
-====
+sconf
+=====
 
-sandbox for my go code
+global mutable map used for program configuration
