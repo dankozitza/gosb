@@ -7,17 +7,14 @@ import (
 	"os"
 )
 
-type ErrNilSettingsMap int
-func (e ErrNilSettingsMap) Error() string {
-	return "sconf: settings map is nil!"
+type ErrSconfGeneric string
+func (e ErrSconfGeneric) Error() string {
+	return "sconf: error: " + string(e)
 }
+
 type ErrUpdateSettings string
 func (e ErrUpdateSettings) Error() string {
 	return "sconf: could not update: " + string(e)
-}
-type ErrSecondCallToNew int
-func (e ErrSecondCallToNew) Error() string {
-	return "sconf: sconf.New() can not be called a second time!"
 }
 
 type sconf map[string]string
@@ -29,12 +26,12 @@ var New_called bool = false
 func New(cfp string) (sconf, error) {
 
 	if (New_called) {
-		return nil, ErrSecondCallToNew(1)
+		panic(ErrSconfGeneric("New() cannot be called a second time!"))
 	}
 	New_called = true
 
 	if (settings == nil) {
-		return nil, ErrNilSettingsMap(1)
+		panic(ErrSconfGeneric("settings cannot be nil!"))
 	}
 
 	config_file_path = cfp
@@ -48,12 +45,14 @@ func New(cfp string) (sconf, error) {
 }
 
 func Inst() sconf {
-
 	if (settings == nil) {
-		fmt.Println(ErrNilSettingsMap(1))
+		panic(ErrSconfGeneric("settings map cannot be nil!"))
 	}
-
 	return settings
+}
+
+func (s *sconf) Set_config_file_path(path string) {
+	config_file_path = path
 }
 
 func (s *sconf) Update() error {
@@ -84,31 +83,19 @@ func (s *sconf) Update() error {
 		str_json += string(buff[:n])
 	}
 
-	fmt.Println("str_json:")
-	fmt.Println(str_json)
-
 	settings = nil
 	if err := json.Unmarshal([]byte(str_json), &settings); err != nil {
 		return err
 	}
 
-	fmt.Println("settings:")
-	fmt.Println(settings)
-
 	return nil
 }
 
-func (s *sconf) Set_config_file_path(path string) {
-	config_file_path = path
-}
-
-func (s *sconf) Save() bool {
+func (s *sconf) Save() error {
 	m_map, err := json.MarshalIndent(settings, "", "   ")
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("writing settings map:", config_file_path)
-	fmt.Println(string(m_map))
 
 	fo, err := os.Create(config_file_path)
 	if err != nil {
@@ -120,9 +107,9 @@ func (s *sconf) Save() bool {
 		}
 	}()
 
-	fo.WriteString(string(m_map))
+	_, err = fo.WriteString(string(m_map))
 
-	return true
+	return err
 }
 
 // Walk walks the tree t sending all values
