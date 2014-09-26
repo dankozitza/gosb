@@ -2,7 +2,8 @@ package sconf
 
 import (
 	"fmt"
-//	"github.com/vaughan0/go-ini"
+	"encoding/json"
+	"os"
 )
 
 type ErrNilSettingsMap int
@@ -75,6 +76,29 @@ func (s *sconf) Get(key string) string {
 
 func (s *sconf) Set(key string) bool {
 	return false
+}
+
+func (s *sconf) Save() bool {
+	m_map, err := json.MarshalIndent(settings, "", "   ")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("writing settings map:", config_file_path)
+	fmt.Println(string(m_map))
+
+	fo, err := os.Create(config_file_path)
+	if err != nil {
+		panic(err)
+	}
+	defer func() {
+		if err := fo.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
+	fo.WriteString(string(m_map))
+
+	return true
 }
 
 // Walk walks the tree t sending all values
