@@ -12,23 +12,23 @@ import (
 
 type ErrSconfGeneric string
 func (e ErrSconfGeneric) Error() string {
-	return "sconf error: " + string(e)
+	return "Sconf error: " + string(e)
 }
 
 type ErrUpdateSettings string
 func (e ErrUpdateSettings) Error() string {
-	return "sconf could not update: " + string(e)
+	return "Sconf could not update: " + string(e)
 }
 
-type sconf map[string]string
+type Sconf map[string]string
 
-var settings sconf = make(sconf)
+var settings Sconf = make(Sconf)
 var config_file_path string
 var New_called bool = false
 var stat statshare.Statshare = statshare.New("test")
 
-func New(cfp string) (sconf, error) {
-	stat.Pass("sconf object initialized")
+func New(cfp string) (Sconf, error) {
+	stat.Pass("Sconf object initialized")
 
 	if (New_called) {
 		return nil, stat.Err("New() cannot be called a second time!")
@@ -51,18 +51,18 @@ func New(cfp string) (sconf, error) {
 	return settings, nil
 }
 
-func Inst() sconf {
+func Inst() Sconf {
 	if (settings == nil) {
 		panic(ErrSconfGeneric("settings map cannot be nil!"))
 	}
 	return settings
 }
 
-func (s *sconf) Set_config_file_path(path string) {
+func (s *Sconf) Set_config_file_path(path string) {
 	config_file_path = path
 }
 
-func (s *sconf) Update() error {
+func (s *Sconf) Update() error {
 	// update settings map from file at config_file_path
 	fi, err := os.Open(config_file_path)
 	if err != nil {
@@ -99,7 +99,7 @@ func (s *sconf) Update() error {
 	return nil
 }
 
-func (s *sconf) Save() error {
+func (s *Sconf) Save() error {
 	m_map, err := json.MarshalIndent(settings, "", "   ")
 	if err != nil {
 		panic(err)
@@ -138,4 +138,12 @@ func (j JSONSconfshareMap) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println(r)
 
 	fmt.Fprint(w, string(m_map))
+}
+
+// GetFilePath
+//
+// used to get the config file path for debug
+//
+func (s Sconf) GetFilePath() string {
+	return config_file_path
 }
