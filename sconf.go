@@ -28,7 +28,7 @@ var New_called bool = false
 var stat statshare.Statshare = statshare.New("test")
 
 func New(cfp string) (Sconf, error) {
-	stat.Pass("Sconf object initialized")
+	stat.Pass("sconf object initialized")
 
 	if (New_called) {
 		return nil, stat.Err("New() cannot be called a second time!")
