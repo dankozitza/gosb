@@ -7,12 +7,15 @@ import (
 	"os"
 	"net/http"
 	//"github.com/dankozitza/seestack"
-	"github.com/dankozitza/statshare"
+	//"github.com/dankozitza/statshare"
 )
 
 type ErrSconfGeneric string
 func (e ErrSconfGeneric) Error() string {
-	return "Sconf error: " + string(e)
+	stat.Status = "ERROR"
+	stat.Message = "error: " + e.Error()
+
+	return stat.Message
 }
 
 type ErrUpdateSettings string
@@ -25,19 +28,23 @@ type Sconf map[string]string
 var settings Sconf = make(Sconf)
 var config_file_path string
 var New_called bool = false
-var stat statshare.Statshare = statshare.New("test")
+//var stat statshare.Statshare = statshare.New("test")
+var stat SconfStatshare = SconfStatshare{"PASS", "sconf package initialized"}
 
 func New(cfp string) (Sconf, error) {
-	stat.Pass("sconf object initialized")
+	stat.Status = "PASS"
+	stat.Message = "sconf object initialized"
 
 	if (New_called) {
-		return nil, stat.Err("New() cannot be called a second time!")
+		//return nil, stat.Err("New() cannot be called a second time!")
+		return nil, ErrSconfGeneric("New() cannot be called a second time!")
 		//panic(ErrSconfGeneric("New() cannot be called a second time!"))
 	}
 	New_called = true
 
 	if (settings == nil) {
-		return nil, stat.Err("settings map cannot be nil!")
+		//return nil, stat.Err("settings map cannot be nil!")
+		return nil, ErrSconfGeneric("settings map cannot be nil!")
 		//panic(ErrSconfGeneric("settings map cannot be nil!"))
 	}
 
@@ -45,7 +52,8 @@ func New(cfp string) (Sconf, error) {
 
 	err := settings.Update()
 	if (err != nil) {
-		stat.PanicErr("failed to update settings", err)
+		//stat.PanicErr("failed to update settings", err)
+		panic(ErrSconfGeneric("failed to update settings: " + err.Error()))
 	}
 
 	return settings, nil
@@ -66,12 +74,15 @@ func (s *Sconf) Update() error {
 	// update settings map from file at config_file_path
 	fi, err := os.Open(config_file_path)
 	if err != nil {
-		stat.Warn("failed to open config file: " + err.Error())
+		//stat.Warn("failed to open config file: " + err.Error())
+		stat.Status = "WARN"
+		stat.Message = "failed to open config file: " + err.Error()
 		return nil
 	}
 	defer func() {
 		if err := fi.Close(); err != nil {
-			stat.PanicErr("filehande failed to close", err)
+			//stat.PanicErr("filehande failed to close", err)
+			panic(ErrSconfGeneric("filehande failed to close: " + err.Error()))
 		}
 	}()
 
@@ -81,7 +92,7 @@ func (s *Sconf) Update() error {
 		// read a chunk
 		n, err := fi.Read(buff)
 		if err != nil && err != io.EOF {
-			return stat.Err(err.Error())
+			return ErrSconfGeneric(err.Error())
 		}
 		if n == 0 {
 			break
@@ -92,8 +103,12 @@ func (s *Sconf) Update() error {
 
 	settings = nil
 	if err := json.Unmarshal([]byte(str_json), &settings); err != nil {
-		return stat.Err("failed to unmarshal config file: " + config_file_path +
-			": " + err.Error())
+		//stat.Status = "ERROR"
+		//stat.Message = "failed to unmarshal config file: " +
+		//	config_file_path + ": " + err.Error()
+
+		return ErrSconfGeneric("failed to unmarshal config file: " +
+			config_file_path + ": " + err.Error())
 	}
 
 	return nil
@@ -131,7 +146,9 @@ func (j JSONSconfshareMap) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	m_map, err := json.MarshalIndent(settings, "", "   ")
 	if err != nil {
-		stat.PanicErr("handler failed to marshal settings map", err)
+		//stat.PanicErr("handler failed to marshal settings map", err)
+		panic(ErrSconfGeneric("handler failed to marshal settings map: " +
+			err.Error()))
 	}
 
 	//fmt.Println(seestack.Short(), "r:")
@@ -146,4 +163,19 @@ func (j JSONSconfshareMap) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 //
 func (s Sconf) GetFilePath() string {
 	return config_file_path
+}
+
+// CustomStatshare interface used by statshare
+type SconfStatshare struct {
+	Status string
+	Message string
+}
+
+//func (css SconfStatshare) GiveStat() (string, string) {
+//	return css.Status, css.Message
+//}
+
+//type SconfStatshare string
+func (s SconfStatshare) GiveStat() (string, string) {
+	return "TEST", "this is a test in sconf"
 }
