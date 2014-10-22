@@ -1,24 +1,28 @@
 package sconf
 
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
+	"github.com/dankozitza/seestack"
+	"github.com/dankozitza/statdist"
 	"io"
-	"os"
 	"net/http"
-	//"github.com/dankozitza/seestack"
-	//"github.com/dankozitza/statshare"
+	"os"
 )
 
 type ErrSconfGeneric string
+
 func (e ErrSconfGeneric) Error() string {
 	stat.Status = "ERROR"
-	stat.Message = "error: " + e.Error()
+	stat.Message = string(e)
+	stat.ShortStack = seestack.Short()
+	statdist.Handle(stat)
 
 	return stat.Message
 }
 
 type ErrUpdateSettings string
+
 func (e ErrUpdateSettings) Error() string {
 	return "Sconf could not update: " + string(e)
 }
@@ -28,39 +32,39 @@ type Sconf map[string]string
 var settings Sconf = make(Sconf)
 var config_file_path string
 var New_called bool = false
-//var stat statshare.Statshare = statshare.New("test")
-var stat SconfStatshare = SconfStatshare{"PASS", "sconf package initialized"}
+var stat statdist.Stat
 
 func New(cfp string) (Sconf, error) {
+	stat.Id = statdist.GetId()
+	stat.ShortStack = seestack.Short()
 	stat.Status = "PASS"
-	stat.Message = "sconf object initialized"
+	stat.Message = "object initialized"
 
-	if (New_called) {
-		//return nil, stat.Err("New() cannot be called a second time!")
+	if New_called {
 		return nil, ErrSconfGeneric("New() cannot be called a second time!")
-		//panic(ErrSconfGeneric("New() cannot be called a second time!"))
 	}
 	New_called = true
 
-	if (settings == nil) {
-		//return nil, stat.Err("settings map cannot be nil!")
+	if settings == nil {
 		return nil, ErrSconfGeneric("settings map cannot be nil!")
-		//panic(ErrSconfGeneric("settings map cannot be nil!"))
 	}
 
 	config_file_path = cfp
 
+	stat.Message += ", using config file " + cfp
+
 	err := settings.Update()
-	if (err != nil) {
-		//stat.PanicErr("failed to update settings", err)
+	if err != nil {
 		panic(ErrSconfGeneric("failed to update settings: " + err.Error()))
 	}
+
+	statdist.Handle(stat)
 
 	return settings, nil
 }
 
 func Inst() Sconf {
-	if (settings == nil) {
+	if settings == nil {
 		panic(ErrSconfGeneric("settings map cannot be nil!"))
 	}
 	return settings
@@ -74,14 +78,14 @@ func (s *Sconf) Update() error {
 	// update settings map from file at config_file_path
 	fi, err := os.Open(config_file_path)
 	if err != nil {
-		//stat.Warn("failed to open config file: " + err.Error())
+		stat.ShortStack = seestack.Short()
 		stat.Status = "WARN"
-		stat.Message = "failed to open config file: " + err.Error()
+		stat.Message = "failed read config file: " + err.Error()
+		statdist.Handle(stat)
 		return nil
 	}
 	defer func() {
 		if err := fi.Close(); err != nil {
-			//stat.PanicErr("filehande failed to close", err)
 			panic(ErrSconfGeneric("filehande failed to close: " + err.Error()))
 		}
 	}()
@@ -103,9 +107,6 @@ func (s *Sconf) Update() error {
 
 	settings = nil
 	if err := json.Unmarshal([]byte(str_json), &settings); err != nil {
-		//stat.Status = "ERROR"
-		//stat.Message = "failed to unmarshal config file: " +
-		//	config_file_path + ": " + err.Error()
 
 		return ErrSconfGeneric("failed to unmarshal config file: " +
 			config_file_path + ": " + err.Error())
@@ -117,22 +118,36 @@ func (s *Sconf) Update() error {
 func (s *Sconf) Save() error {
 	m_map, err := json.MarshalIndent(settings, "", "   ")
 	if err != nil {
-		panic(err)
+		panic(ErrSconfGeneric(err.Error()))
 	}
 
 	fo, err := os.Create(config_file_path)
 	if err != nil {
-		panic(err)
+		msg := "failed to open config file " +
+			config_file_path + " for writing: " + err.Error()
+
+		return ErrSconfGeneric(msg)
 	}
 	defer func() {
 		if err := fo.Close(); err != nil {
-			panic(err)
+			panic(ErrSconfGeneric(err.Error()))
 		}
 	}()
 
 	_, err = fo.WriteString(string(m_map))
 
-	return err
+	if err != nil {
+		msg := "failed to write to config file " +
+			config_file_path + ": " + err.Error()
+		return ErrSconfGeneric(msg)
+	}
+
+	stat.Status = "PASS"
+	stat.Message = "saved config to file " + config_file_path
+	stat.ShortStack = seestack.Short()
+	statdist.Handle(stat)
+
+	return nil
 }
 
 // JSONSconfshareMap
@@ -142,11 +157,11 @@ func (s *Sconf) Save() error {
 // TODO: use RWMutex
 //
 type JSONSconfshareMap string
+
 func (j JSONSconfshareMap) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	m_map, err := json.MarshalIndent(settings, "", "   ")
 	if err != nil {
-		//stat.PanicErr("handler failed to marshal settings map", err)
 		panic(ErrSconfGeneric("handler failed to marshal settings map: " +
 			err.Error()))
 	}
@@ -163,19 +178,4 @@ func (j JSONSconfshareMap) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 //
 func (s Sconf) GetFilePath() string {
 	return config_file_path
-}
-
-// CustomStatshare interface used by statshare
-type SconfStatshare struct {
-	Status string
-	Message string
-}
-
-//func (css SconfStatshare) GiveStat() (string, string) {
-//	return css.Status, css.Message
-//}
-
-//type SconfStatshare string
-func (s SconfStatshare) GiveStat() (string, string) {
-	return "TEST", "this is a test in sconf"
 }
