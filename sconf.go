@@ -27,7 +27,7 @@ func (e ErrUpdateSettings) Error() string {
 	return "Sconf could not update: " + string(e)
 }
 
-type Sconf map[string]string
+type Sconf map[string]interface{}
 
 var settings Sconf = make(Sconf)
 var config_file_path string
@@ -35,6 +35,9 @@ var New_called bool = false
 var stat statdist.Stat
 
 func New(cfp string) (Sconf, error) {
+
+	config_file_path = cfp
+
 	stat.Id = statdist.GetId()
 	stat.ShortStack = seestack.Short()
 	stat.Status = "PASS"
@@ -48,8 +51,6 @@ func New(cfp string) (Sconf, error) {
 	if settings == nil {
 		return nil, ErrSconfGeneric("settings map cannot be nil!")
 	}
-
-	config_file_path = cfp
 
 	stat.Message += ", using config file " + cfp
 
@@ -105,11 +106,15 @@ func (s *Sconf) Update() error {
 		str_json += string(buff[:n])
 	}
 
-	settings = nil
-	if err := json.Unmarshal([]byte(str_json), &settings); err != nil {
+	var newsettings map[string]interface{}
+	if err := json.Unmarshal([]byte(str_json), &newsettings); err != nil {
 
 		return ErrSconfGeneric("failed to unmarshal config file: " +
 			config_file_path + ": " + err.Error())
+	}
+
+	for k, _ := range newsettings {
+		settings[k] = newsettings[k]
 	}
 
 	return nil
@@ -150,15 +155,15 @@ func (s *Sconf) Save() error {
 	return nil
 }
 
-// JSONSconfshareMap
+// JSONSettingsMap
 //
 // Handler used to reply to http requests. gives the settings map as JSON
 //
 // TODO: use RWMutex
 //
-type JSONSconfshareMap string
+type JSONSettingsMap string
 
-func (j JSONSconfshareMap) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (j JSONSettingsMap) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	m_map, err := json.MarshalIndent(settings, "", "   ")
 	if err != nil {
