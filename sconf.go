@@ -40,7 +40,7 @@ func New(cfp string) (Sconf, error) {
 
 	stat.Id = statdist.GetId()
 	stat.ShortStack = seestack.Short()
-	stat.Status = "PASS"
+	stat.Status = "INIT"
 	stat.Message = "object initialized"
 
 	if New_called {
