@@ -82,7 +82,6 @@ func (s *Sconf) Update() error {
 		stat.ShortStack = seestack.Short()
 		stat.Status = "WARN"
 		stat.Message = "failed read config file: " + err.Error()
-		statdist.Handle(stat)
 		return nil
 	}
 	defer func() {
