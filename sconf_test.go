@@ -80,29 +80,18 @@ func TestSave(t *testing.T) {
 		return
 	}
 
-	cnt := 0
-	good := true
 	buff := make([]byte, 1024)
-	for {
-		n, err := fi.Read(buff)
-		if err != nil && err != io.EOF {
-			fmt.Println("TestSave: could not read from config file:", file_path,
-				"err:", err)
-			t.Fail()
-			return
-		}
-		if n == 0 {
-			break
-		}
-		if string(buff[:n]) != dummyfile {
-			fmt.Println("TestSave: config file does not match dummy file:")
-			fmt.Println("saved file:", string(buff[:n]))
-			fmt.Println("dummy file:", dummyfile)
-			good = false
-		}
-		cnt++
+	n, err := fi.Read(buff)
+	if err != nil && err != io.EOF {
+		fmt.Println("TestSave: could not read from config file:", file_path,
+			"err:", err)
+		t.Fail()
+		return
 	}
-	if !good {
+	if string(buff[:n]) != dummyfile {
+		fmt.Println("TestSave: config file does not match dummy file:")
+		fmt.Println("saved file:", string(buff[:n]))
+		fmt.Println("dummy file:", dummyfile)
 		t.Fail()
 	}
 }
