@@ -34,7 +34,7 @@ var config_file_path string
 var New_called bool = false
 var stat statdist.Stat
 
-func New(cfp string) (Sconf, error) {
+func New(cfp string, preset Sconf) Sconf {
 
 	config_file_path = cfp
 
@@ -44,15 +44,21 @@ func New(cfp string) (Sconf, error) {
 	stat.Message = "object initialized"
 
 	if New_called {
-		return nil, ErrSconfGeneric("New() cannot be called a second time!")
+		return nil //, ErrSconfGeneric("New() cannot be called a second time!")
 	}
 	New_called = true
 
 	if settings == nil {
-		return nil, ErrSconfGeneric("settings map cannot be nil!")
+		return nil //, ErrSconfGeneric("settings map cannot be nil!")
 	}
 
 	stat.Message += ", using config file " + cfp
+
+	if preset != nil {
+		for k, _ := range preset {
+			settings[k] = preset[k]
+		}
+	}
 
 	err := settings.Update()
 	if err != nil {
@@ -61,7 +67,7 @@ func New(cfp string) (Sconf, error) {
 
 	statdist.Handle(stat)
 
-	return settings, nil
+	return settings //, nil
 }
 
 func Inst() Sconf {

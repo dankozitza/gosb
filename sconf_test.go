@@ -13,14 +13,9 @@ var file_path string = "sconf_test.json"
 
 func TestNew(t *testing.T) {
 
-	conf, err := New(file_path)
+	conf := New(file_path, nil)
 
-	if err != nil {
-		fmt.Println("New err:", err)
-		t.Fail()
-	}
-
-	fmt.Println("conf:", conf, "err:", err)
+	fmt.Println("conf:", conf)
 }
 
 func TestMap(t *testing.T) {
