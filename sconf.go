@@ -2,6 +2,7 @@ package sconf
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/dankozitza/seestack"
 	"github.com/dankozitza/statdist"
@@ -30,65 +31,82 @@ func (e ErrUpdateSettings) Error() string {
 type Sconf map[string]interface{}
 
 var settings Sconf = make(Sconf)
-var config_file_path string
-var New_called bool = false
+var config_file_path string // not being used properly
+var Init_called bool = false
 var stat statdist.Stat
 
-func New(cfp string, preset Sconf) Sconf {
+// Init
+//
+// Initializes the global settings map. This must be called before calling Inst.
+//
+func Init(cfp string, preset Sconf) Sconf {
+
+	if Init_called {
+		stat.Status = "ERROR"
+		stat.ShortStack = seestack.Short()
+		stat.Message = "Init cannot be called a second time!"
+		statdist.Handle(stat)
+		return nil
+	}
+	Init_called = true
 
 	config_file_path = cfp
+	settings = New(cfp, preset)
+
+	return settings
+}
+
+// Inst
+//
+// Returns a reference to the global settings map.
+//
+func Inst() Sconf {
+	return settings
+}
+
+// New
+//
+// Creates a new Sconf object.
+//
+func New(cfp string, preset Sconf) Sconf {
+
+	var local_settings Sconf = make(Sconf)
 
 	stat.Id = statdist.GetId()
 	stat.ShortStack = seestack.Short()
 	stat.Status = "INIT"
-	stat.Message = "object initialized"
-
-	if New_called {
-		return nil //, ErrSconfGeneric("New() cannot be called a second time!")
-	}
-	New_called = true
-
-	if settings == nil {
-		return nil //, ErrSconfGeneric("settings map cannot be nil!")
-	}
-
-	stat.Message += ", using config file " + cfp
+	stat.Message = "object initialized, using config file " + cfp
 
 	if preset != nil {
 		for k, _ := range preset {
-			settings[k] = preset[k]
+			local_settings[k] = preset[k]
 		}
 	}
 
-	err := settings.Update()
-	if err != nil {
-		panic(ErrSconfGeneric("failed to update settings: " + err.Error()))
-	}
+	local_settings.Update(cfp)
 
-	statdist.Handle(stat)
-
-	return settings //, nil
+	return local_settings
 }
 
-func Inst() Sconf {
-	if settings == nil {
-		panic(ErrSconfGeneric("settings map cannot be nil!"))
-	}
-	return settings
-}
-
-func (s *Sconf) Set_config_file_path(path string) {
+// broken
+func (s Sconf) Set_config_file_path(path string) {
 	config_file_path = path
 }
 
-func (s *Sconf) Update() error {
-	// update settings map from file at config_file_path
-	fi, err := os.Open(config_file_path)
+// Update
+//
+// Unmarshalls the JSON object in the config file path and copies those values
+// to the Sconf object.
+//
+func (s Sconf) Update(cfp string) error {
+	// update settings map from the config file path
+	fi, err := os.Open(cfp)
 	if err != nil {
-		stat.ShortStack = seestack.Short()
 		stat.Status = "WARN"
-		stat.Message = "failed read config file: " + err.Error()
-		return nil
+		stat.Message = "failed to update: " + err.Error()
+		stat.ShortStack = seestack.Short()
+		statdist.Handle(stat)
+		return errors.New(stat.Message)
 	}
 	defer func() {
 		if err := fi.Close(); err != nil {
@@ -102,7 +120,7 @@ func (s *Sconf) Update() error {
 		// read a chunk
 		n, err := fi.Read(buff)
 		if err != nil && err != io.EOF {
-			return ErrSconfGeneric(err.Error())
+			return err
 		}
 		if n == 0 {
 			break
@@ -113,28 +131,34 @@ func (s *Sconf) Update() error {
 
 	var newsettings map[string]interface{}
 	if err := json.Unmarshal([]byte(str_json), &newsettings); err != nil {
-
-		return ErrSconfGeneric("failed to unmarshal config file: " +
-			config_file_path + ": " + err.Error())
+		stat.Status = "WARN"
+		stat.Message = "unmarshalling " + cfp + ": " + err.Error()
+		stat.ShortStack = seestack.Short()
+		statdist.Handle(stat)
+		return errors.New(stat.Message)
 	}
 
 	for k, _ := range newsettings {
-		settings[k] = newsettings[k]
+		s[k] = newsettings[k]
 	}
 
 	return nil
 }
 
-func (s *Sconf) Save() error {
-	m_map, err := json.MarshalIndent(settings, "", "   ")
+// Save
+//
+// Saves the Sconf object as JSON.
+//
+func (s Sconf) Save(cfp string) error {
+	m_map, err := json.MarshalIndent(s, "", "   ")
 	if err != nil {
 		panic(ErrSconfGeneric(err.Error()))
 	}
 
-	fo, err := os.Create(config_file_path)
+	fo, err := os.Create(cfp)
 	if err != nil {
-		msg := "failed to open config file " +
-			config_file_path + " for writing: " + err.Error()
+		msg := "failed to open config file " + cfp +
+			" for writing: " + err.Error()
 
 		return ErrSconfGeneric(msg)
 	}
@@ -145,39 +169,34 @@ func (s *Sconf) Save() error {
 	}()
 
 	_, err = fo.WriteString(string(m_map))
-
 	if err != nil {
-		msg := "failed to write to config file " +
-			config_file_path + ": " + err.Error()
+		msg := "failed to write to config file " + cfp + ": " + err.Error()
 		return ErrSconfGeneric(msg)
 	}
 
 	stat.Status = "PASS"
-	stat.Message = "saved config to file " + config_file_path
+	stat.Message = "saved config to file " + cfp
 	stat.ShortStack = seestack.Short()
 	statdist.Handle(stat)
 
 	return nil
 }
 
-// JSONSettingsMap
+// HTTPHandler
 //
-// Handler used to reply to http requests. gives the settings map as JSON
+// Handler used to reply to http requests. gives the Sconf object as JSON
 //
 // TODO: use RWMutex
 //
-type JSONSettingsMap string
+type HTTPHandler Sconf
 
-func (j JSONSettingsMap) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (j HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	m_map, err := json.MarshalIndent(settings, "", "   ")
+	m_map, err := json.MarshalIndent(j, "", "   ")
 	if err != nil {
 		panic(ErrSconfGeneric("handler failed to marshal settings map: " +
 			err.Error()))
 	}
-
-	//fmt.Println(seestack.Short(), "r:")
-	//fmt.Println(r)
 
 	fmt.Fprint(w, string(m_map))
 }

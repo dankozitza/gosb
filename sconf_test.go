@@ -10,12 +10,13 @@ import (
 )
 
 var file_path string = "sconf_test.json"
+var pconf Sconf = Init(file_path, Sconf{"pkey": "pval"})
 
-func TestNew(t *testing.T) {
+func TestInst(t *testing.T) {
 
-	conf := New(file_path, nil)
+	conf := Inst()
 
-	fmt.Println("conf:", conf)
+	fmt.Println("Init conf:", conf)
 }
 
 func TestMap(t *testing.T) {
@@ -31,6 +32,16 @@ func TestMap(t *testing.T) {
 	fmt.Println("TestMap: conf:", conf)
 }
 
+func TestNew(t *testing.T) {
+
+	conf := New("blah", nil)
+	fmt.Println("New conf:", conf)
+
+	if conf["key1"] != nil {
+		t.Fail()
+	}
+}
+
 func TestContents(t *testing.T) {
 
 	conf := Inst()
@@ -40,6 +51,7 @@ func TestContents(t *testing.T) {
 	d2 := dummy{"structval", 3}
 
 	var dconf map[string]interface{} = make(map[string]interface{})
+	dconf["pkey"] = "pval"
 	dconf["key1"] = "val1"
 	dconf["key2"] = 2
 	dconf["key3"] = d2
@@ -64,9 +76,9 @@ func TestContents(t *testing.T) {
 
 func TestSave(t *testing.T) {
 	conf := Inst()
-	conf.Save()
+	conf.Save(file_path)
 
-	dummyfile := "{\n   \"key1\": \"val1\",\n   \"key2\": 2,\n   \"key3\": {}\n}"
+	dummyfile := "{\n   \"key1\": \"val1\",\n   \"key2\": 2,\n   \"key3\": {},\n   \"pkey\": \"pval\"\n}"
 
 	fi, err := os.Open(file_path)
 	if err != nil {
