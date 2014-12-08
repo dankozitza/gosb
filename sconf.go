@@ -85,6 +85,10 @@ func New(cfp string, preset Sconf) Sconf {
 
 	local_settings.Update(cfp)
 
+	if stat.Status == "INIT" {
+		statdist.Handle(stat)
+	}
+
 	return local_settings
 }
 
@@ -92,6 +96,11 @@ func New(cfp string, preset Sconf) Sconf {
 func (s Sconf) Set_config_file_path(path string) {
 	config_file_path = path
 }
+
+// TODO: FileWasModified
+//
+// Checks to see if the file at path has been modified since last update.
+//
 
 // Update
 //
