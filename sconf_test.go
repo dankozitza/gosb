@@ -103,10 +103,10 @@ func TestSave(t *testing.T) {
 	}
 }
 
-func TestJSONSettingsMap(t *testing.T) {
-	var jsm JSONSettingsMap
+func TestHTTPHandler(t *testing.T) {
+	var jsm HTTPHandler
 	http.Handle("/sconf", jsm)
-	fmt.Println("TestJSONSettingsMap: added handler to http")
+	fmt.Println("TestHTTPHandler: added handler to http")
 	//http.ListenAndServe("localhost:9000", nil)
 }
 

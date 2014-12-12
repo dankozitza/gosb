@@ -17,15 +17,9 @@ func (e ErrSconfGeneric) Error() string {
 	stat.Status = "ERROR"
 	stat.Message = string(e)
 	stat.ShortStack = seestack.Short()
-	statdist.Handle(stat)
+	statdist.Handle(stat, false)
 
 	return stat.Message
-}
-
-type ErrUpdateSettings string
-
-func (e ErrUpdateSettings) Error() string {
-	return "Sconf could not update: " + string(e)
 }
 
 type Sconf map[string]interface{}
@@ -45,7 +39,7 @@ func Init(cfp string, preset Sconf) Sconf {
 		stat.Status = "ERROR"
 		stat.ShortStack = seestack.Short()
 		stat.Message = "Init cannot be called a second time!"
-		statdist.Handle(stat)
+		statdist.Handle(stat, false)
 		return nil
 	}
 	Init_called = true
@@ -86,7 +80,7 @@ func New(cfp string, preset Sconf) Sconf {
 	local_settings.Update(cfp)
 
 	if stat.Status == "INIT" {
-		statdist.Handle(stat)
+		statdist.Handle(stat, true)
 	}
 
 	return local_settings
@@ -100,6 +94,7 @@ func (s Sconf) Set_config_file_path(path string) {
 // TODO: FileWasModified
 //
 // Checks to see if the file at path has been modified since last update.
+// Should be put in dkutils and called from main.
 //
 
 // Update
@@ -114,7 +109,7 @@ func (s Sconf) Update(cfp string) error {
 		stat.Status = "WARN"
 		stat.Message = "failed to update: " + err.Error()
 		stat.ShortStack = seestack.Short()
-		statdist.Handle(stat)
+		statdist.Handle(stat, false)
 		return errors.New(stat.Message)
 	}
 	defer func() {
@@ -143,13 +138,18 @@ func (s Sconf) Update(cfp string) error {
 		stat.Status = "WARN"
 		stat.Message = "unmarshalling " + cfp + ": " + err.Error()
 		stat.ShortStack = seestack.Short()
-		statdist.Handle(stat)
+		statdist.Handle(stat, false)
 		return errors.New(stat.Message)
 	}
 
 	for k, _ := range newsettings {
-		s[k] = newsettings[k]
+	   s[k] = newsettings[k]
 	}
+
+   stat.Status = "PASS"
+   stat.Message = "updated sconf object from file: " + cfp
+   stat.ShortStack = seestack.Short()
+   statdist.Handle(stat, true)
 
 	return nil
 }
@@ -186,7 +186,7 @@ func (s Sconf) Save(cfp string) error {
 	stat.Status = "PASS"
 	stat.Message = "saved config to file " + cfp
 	stat.ShortStack = seestack.Short()
-	statdist.Handle(stat)
+	statdist.Handle(stat, true)
 
 	return nil
 }
