@@ -143,13 +143,13 @@ func (s Sconf) Update(cfp string) error {
 	}
 
 	for k, _ := range newsettings {
-	   s[k] = newsettings[k]
+		s[k] = newsettings[k]
 	}
 
-   stat.Status = "PASS"
-   stat.Message = "updated sconf object from file: " + cfp
-   stat.ShortStack = seestack.Short()
-   statdist.Handle(stat, true)
+	stat.Status = "PASS"
+	stat.Message = "updated sconf object from file: " + cfp
+	stat.ShortStack = seestack.Short()
+	statdist.Handle(stat, true)
 
 	return nil
 }
